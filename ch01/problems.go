@@ -57,10 +57,18 @@ func main() {
 	// The given functions with corresponding inverse implementations
 	funcNames := []string{"lg n", "sqrt(n)", "n", "n lg n", "n^2", "n^3", "2^n", "n!"}
 	functions := []func(float64) float64{
+
+		// float64 isn't enough, yields +Inf :-(
+		// But resolvable if you write it as 2^T
 		func(n float64) float64 { return math.Exp2(n) },
+
 		func(n float64) float64 { return math.Pow(n, 2) },
 		func(n float64) float64 { return n },
+
+		// Since math.Exp2(n) yields +Inf, dividing by whatever yields +Inf :-(
+		// But resolvable if you write it as (2^T)/T
 		func(n float64) float64 { return math.Exp2(n) / n },
+
 		func(n float64) float64 { return math.Sqrt(n) },
 		func(n float64) float64 { return math.Cbrt(n) },
 		func(n float64) float64 { return math.Log2(n) },
