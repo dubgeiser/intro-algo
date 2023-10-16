@@ -1,0 +1,13 @@
+.DS_Store
+.build/
+.buildpath
+.cache
+.env
+.idea
+.project
+.settings
+*.pyc
+build/
+tags
+!tags/
+tmp/
