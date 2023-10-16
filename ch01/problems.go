@@ -38,12 +38,28 @@ func fac(n float64) float64 {
 	return f
 }
 
-func printResult(funcName, timeName string, n float64) {
-	fmt.Printf("Max n for %s under 1 %s = %v\n", funcName, timeName, math.Trunc(n))
+func printTableHeader(timeNames []string) {
+	fmt.Printf("%-7s", " ")
+	for _, t := range timeNames {
+		fmt.Printf("%16s", t)
+	}
+	fmt.Println()
+}
+
+func printFuncBegin(funcName string) {
+	fmt.Printf("%-7s", funcName)
+}
+
+func printMaxN(n float64) {
+	fmt.Printf("%16v", math.Trunc(n))
+}
+
+func printFuncEnd() {
+	fmt.Println()
 }
 
 func main() {
-	timeNames := []string{"second", "minute", "hour", "day", "month", "year", "century"}
+	timeNames := []string{"1 second", "1 minute", "1 hour", "1 day", "1 month", "1 year", "1 century"}
 	times := []float64{
 		1_000_000,
 		1_000_000 * 60,
@@ -74,10 +90,13 @@ func main() {
 		func(n float64) float64 { return math.Log2(n) },
 	}
 
+	printTableHeader(timeNames)
 	for iF, f := range functions {
-		for iT, t := range times {
-			printResult(funcNames[iF], timeNames[iT], f(t))
+		printFuncBegin(funcNames[iF])
+		for _, t := range times {
+			printMaxN(f(t))
 		}
+		printFuncEnd()
 	}
 
 	// Brute forcing the factorial function.
@@ -87,15 +106,17 @@ func main() {
 	// I think we can be pretty sure that there won't be much elements that can
 	// be handled in the given timings, so just check it... I think 100 elements
 	// will not even be handled in a hundred years (Spoiler: they don't ;-) )
-	for iT, t := range times {
+	printFuncBegin("n!")
+	for _, t := range times {
 		for n := 1; n < 100; n++ {
 			if fac(float64(n)) > t {
 				// If fac(n) has become larger than our timing, that means the
 				// previous n was the largest n and we can go on to the next
 				// timing.
-				printResult("n!", timeNames[iT], float64(n-1))
+				printMaxN(float64(n - 1))
 				break
 			}
 		}
 	}
+	printFuncEnd()
 }
