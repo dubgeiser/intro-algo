@@ -28,6 +28,9 @@ n!             ???
 import (
 	"fmt"
 	"math"
+	"os"
+	"strings"
+	"text/tabwriter"
 )
 
 func fac(n float64) float64 {
@@ -38,24 +41,36 @@ func fac(n float64) float64 {
 	return f
 }
 
-func printTableHeader(timeNames []string) {
-	fmt.Printf("%-7s", " ")
-	for _, t := range timeNames {
-		fmt.Printf("%16s", t)
-	}
-	fmt.Println()
+type ResultTable struct {
+	lineWriter *tabwriter.Writer
+	colHeaders []string
 }
 
-func printFuncBegin(funcName string) {
-	fmt.Printf("%-7s", funcName)
+func (t *ResultTable) Start() {
+	fmt.Fprintln(t.lineWriter, "\t", strings.Join(t.colHeaders, "\t"), "\t")
 }
 
-func printMaxN(n float64) {
-	fmt.Printf("%16v", math.Trunc(n))
+func (t *ResultTable) StartResultLine(header string) {
+	fmt.Fprint(t.lineWriter, header, "\t")
 }
 
-func printFuncEnd() {
-	fmt.Println()
+func (t *ResultTable) Result(result float64) {
+	fmt.Fprint(t.lineWriter, math.Trunc(result), "\t")
+}
+
+func (t *ResultTable) EndResultLine() {
+	fmt.Fprintln(t.lineWriter)
+}
+
+func (t *ResultTable) End() {
+	t.lineWriter.Flush()
+}
+
+func NewResultTable(headers []string) *ResultTable {
+	t := new(ResultTable)
+	t.colHeaders = headers
+	t.lineWriter = tabwriter.NewWriter(os.Stdout, 0, 8, 3, ' ', tabwriter.AlignRight)
+	return t
 }
 
 func main() {
@@ -90,13 +105,15 @@ func main() {
 		func(n float64) float64 { return math.Log2(n) },
 	}
 
-	printTableHeader(timeNames)
+	rt := NewResultTable(timeNames)
+	rt.Start()
+
 	for iF, f := range functions {
-		printFuncBegin(funcNames[iF])
+		rt.StartResultLine(funcNames[iF])
 		for _, t := range times {
-			printMaxN(f(t))
+			rt.Result(f(t))
 		}
-		printFuncEnd()
+		rt.EndResultLine()
 	}
 
 	// Brute forcing the factorial function.
@@ -106,17 +123,18 @@ func main() {
 	// I think we can be pretty sure that there won't be much elements that can
 	// be handled in the given timings, so just check it... I think 100 elements
 	// will not even be handled in a hundred years (Spoiler: they don't ;-) )
-	printFuncBegin("n!")
+	rt.StartResultLine("n!")
 	for _, t := range times {
 		for n := 1; n < 100; n++ {
 			if fac(float64(n)) > t {
 				// If fac(n) has become larger than our timing, that means the
 				// previous n was the largest n and we can go on to the next
 				// timing.
-				printMaxN(float64(n - 1))
+				rt.Result(float64(n - 1))
 				break
 			}
 		}
 	}
-	printFuncEnd()
+	rt.EndResultLine()
+	rt.End()
 }
