@@ -91,6 +91,16 @@ func main() {
 
 		// float64 isn't enough, yields +Inf :-(
 		// But resolvable if you write it as 2^T
+		// As a POC, I've written some code that uses math/big, but even then it
+		// took 4 minutes to calculate the 1 second and 1 minute number...
+		// I did not wait for the 1 hour result :-)
+		// The purpose of the problem in the book is of course to show that some
+		// algorithms are just _enormously_ slow and hitting the limits of
+		// comfortable computer response times, to say the least.
+		//
+		// In case you're wondering, after 4 minutes, these were the results:
+		// 1s: 9.900656e+301029
+		// 1m: 5.493370e+18061799
 		func(n float64) float64 { return math.Exp2(n) },
 
 		func(n float64) float64 { return math.Pow(n, 2) },
